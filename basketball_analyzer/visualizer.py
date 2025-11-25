@@ -3,7 +3,7 @@ Visualization and drawing functionality for basketball trajectory analysis
 """
 
 import cv2
-from .config import COLORS, FONT_SCALE, FONT_THICKNESS, SMALL_FONT_SCALE, SMALL_FONT_THICKNESS
+from .config import COLORS, FONT_SCALE, FONT_THICKNESS, SMALL_FONT_SCALE, SMALL_FONT_THICKNESS, PHASE_COLORS, SHOT_PHASE_NAMES
 
 
 class TrajectoryVisualizer:
@@ -123,6 +123,58 @@ class TrajectoryVisualizer:
         cv2.putText(frame, "PAUSED", (20, frame.shape[0]//2),
                    cv2.FONT_HERSHEY_SIMPLEX, 2, COLORS['pause'], 3)
 
+    def draw_phase_boxes(self, frame, phase_detections):
+        """
+        Draw bounding boxes for detected shot phases
+
+        Args:
+            frame: Frame to draw on
+            phase_detections: Dictionary of detected phases {class_id: phase_info}
+        """
+        if not phase_detections:
+            return
+
+        for class_id, phase_info in phase_detections.items():
+            bbox = phase_info.get('bbox')
+            confidence = phase_info.get('confidence', 0.0)
+            position = phase_info.get('position')
+
+            if bbox:
+                x1, y1, x2, y2 = bbox
+                color = PHASE_COLORS.get(class_id, COLORS['trajectory'])
+
+                # Draw bounding box
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+
+                # Draw label with phase name and confidence
+                phase_name = SHOT_PHASE_NAMES.get(class_id, f"Phase {class_id}")
+                label = f"{phase_name}: {confidence:.2f}"
+
+                # Calculate text size for background
+                (text_width, text_height), baseline = cv2.getTextSize(
+                    label, cv2.FONT_HERSHEY_SIMPLEX, SMALL_FONT_SCALE, SMALL_FONT_THICKNESS
+                )
+
+                # Draw background rectangle for text
+                cv2.rectangle(
+                    frame,
+                    (x1, y1 - text_height - baseline - 5),
+                    (x1 + text_width, y1),
+                    color,
+                    -1
+                )
+
+                # Draw text
+                cv2.putText(
+                    frame,
+                    label,
+                    (x1, y1 - baseline - 2),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    SMALL_FONT_SCALE,
+                    (255, 255, 255),  # White text
+                    SMALL_FONT_THICKNESS
+                )
+
     def draw_detection_status(self, frame, detections):
         """
         Draw detection status information
@@ -146,7 +198,7 @@ class TrajectoryVisualizer:
                    SMALL_FONT_SCALE, rim_color, SMALL_FONT_THICKNESS)
 
     def draw_complete_analysis(self, frame, detections, trajectory, probability,
-                             ball_positions, basket_pos):
+                             ball_positions, basket_pos, phase_detections=None):
         """
         Draw complete trajectory analysis
 
@@ -157,6 +209,7 @@ class TrajectoryVisualizer:
             probability: Shot probability
             ball_positions: Ball position history
             basket_pos: Basket position
+            phase_detections: Dictionary of detected shot phases (optional)
         Returns:
             numpy.ndarray: Frame with analysis drawn
         """
@@ -171,6 +224,9 @@ class TrajectoryVisualizer:
 
         if self.show_detection_boxes:
             self.draw_rim_detection(output, detections.get('rim'))
+            # Draw phase detection boxes if available
+            if phase_detections:
+                self.draw_phase_boxes(output, phase_detections)
 
         if self.show_trajectory:
             self.draw_trajectory(output, trajectory)
