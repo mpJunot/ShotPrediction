@@ -19,10 +19,10 @@ def main():
 
     # Initialize analyzer
     model_path = os.path.join(project_root, 'models', 'shot.pt')
-    analyzer = BasketballTrajectoryAnalyzer(model_path)
+    analyzer = BasketballTrajectoryAnalyzer(model_path, enable_phase_detection=True)
 
     # Open video capture
-    video_path = os.path.join(project_root, 'assets', 'basket.mp4')
+    video_path = os.path.join(project_root, 'assets', '3.mp4')
     cap = cv2.VideoCapture(video_path)
 
     # Playback control
