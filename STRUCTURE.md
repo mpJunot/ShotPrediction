@@ -21,7 +21,8 @@ ShotPrediction/
 │   └── shot_detector.py
 │
 ├── models/                      # Trained YOLO models
-│   └── shot.pt
+│   ├── shot.pt                 # Basic basketball detection model
+│   └── copyme.pt               # Shot phase detection model
 │
 ├── assets/                      # Example videos and media
 │   ├── match.mp4

@@ -6,9 +6,12 @@ A comprehensive basketball trajectory analysis system using YOLO object detectio
 
 - Real-time basketball detection using YOLOv8
 - Basketball rim and player detection
+- Shot phase detection (position, release, followthrough)
 - Physics-based trajectory prediction
 - Shot probability calculation
 - Real-time visualization with trajectory overlay
+- Web interface via Streamlit
+- Desktop application via OpenCV
 - Configurable analysis parameters
 
 ## Installation
@@ -38,8 +41,6 @@ Or use the provided script:
 ```bash
 ./activate_venv.sh
 ```
-
-See `SETUP_VENV.md` for detailed instructions.
 
 ### Install from requirements.txt
 
@@ -73,9 +74,12 @@ python scripts/main.py
 **Application Streamlit (Web):**
 
 ```bash
-python scripts/run_streamlit.py
-# or
-streamlit run scripts/streamlit_app.py
+# From project root
+python playground/run_streamlit.py
+
+# Or directly with Streamlit
+cd playground
+streamlit run streamlit_app.py
 ```
 
 ### Controls
@@ -113,16 +117,18 @@ ShotPrediction/
 │   ├── visualizer.py             # Results visualization
 │   ├── config.py                 # Configuration and constants
 │   ├── utils.py                  # Utility functions
-│   └── shot_detector.py          # Shot detection logic
+│   ├── shot_detector.py          # Shot detection logic
+│   └── shot_phase_detector.py    # Shot phase detection (copyme.pt)
 │
 ├── models/                       # Trained YOLO models
-│   └── shot.pt                   # YOLO model for basketball detection
+│   ├── shot.pt                   # YOLO model for basic basketball detection
+│   └── copyme.pt                 # YOLO model for shot phase detection
 │
 ├── assets/                       # Example videos and media
-│   ├── match.mp4
 │   ├── basket.mp4
-│   ├── a.webm
-│   └── c.webm
+│   ├── shot.mp4
+│   ├── 3.mp4
+│   └── amaze.mp4
 │
 ├── docs/                         # Technical documentation
 │   ├── BASKETBALL_CALCULATIONS.md
@@ -132,14 +138,16 @@ ShotPrediction/
 │   └── DatasetTraning.ipynb      # Dataset training notebook
 │
 ├── scripts/                      # Execution scripts
-│   ├── main.py                  # Main OpenCV application
+│   └── main.py                  # Main OpenCV application
+│
+├── playground/                   # Streamlit web application
 │   ├── streamlit_app.py         # Streamlit web application
 │   ├── run_streamlit.py         # Streamlit launcher script
-│   └── styles.css               # Custom CSS for Streamlit app
+│   ├── styles.css               # Custom CSS for Streamlit app
+│   └── README.md                # Streamlit playground documentation
 │
 ├── README.md                     # Main documentation
 ├── STRUCTURE.md                  # Project structure guide
-├── SETUP_VENV.md                 # Virtual environment setup guide
 ├── activate_venv.sh              # Virtual environment activation script
 ├── requirements.txt              # Python dependencies
 ├── setup.py                      # Package configuration
@@ -168,13 +176,28 @@ See `STRUCTURE.md` for more details on project organization.
 
 Place your trained YOLO model file in the models directory:
 
-- `models/shot.pt`: YOLO model trained for basketball detection
+- `models/shot.pt`: YOLO model trained for basketball detection (basic detection)
+- `models/copyme.pt`: YOLO model trained for shot phase detection (detects different phases of a shot)
+
+### Basic Detection Model (shot.pt)
 
 The model should detect:
 
 - Class 0: Basketball
 - Class 1: Player
 - Class 2: Basketball rim
+
+### Shot Phase Detection Model (copyme.pt)
+
+This model detects different phases of a basketball shot, providing more detailed analysis of the shooting motion and trajectory phases.
+
+The model detects three shot phases:
+
+- **Class 0: shot_followthrough** - Follow-through motion after release
+- **Class 1: shot_position** - Player positioning and preparation phase
+- **Class 2: shot_release** - Ball release phase
+
+This model can be enabled in the analyzer to track the progression of a shot through these different phases.
 
 ## Performance Optimization
 
