@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Assets (videos are large)
+assets/
+
+# Streamlit
+playground/
+
+# Scripts (not needed for training)
+scripts/
+
+# Models (will be generated during training)
+models/*.pt
+!models/.gitkeep
+
+# Training outputs (will be generated)
+runs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Other
+*.tmp
+*.bak
+*.cache
+
