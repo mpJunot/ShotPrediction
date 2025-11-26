@@ -199,6 +199,205 @@ The model detects three shot phases:
 
 This model can be enabled in the analyzer to track the progression of a shot through these different phases.
 
+## Model Training
+
+### Prerequisites for Training
+
+- CUDA-compatible GPU (recommended for faster training)
+- Docker and Docker Compose (for containerized training)
+- Or Python 3.8+ with CUDA toolkit installed
+
+### Training with Docker (Recommended)
+
+The easiest way to reproduce the training is using Docker:
+
+#### 1. Build the Docker image
+
+```bash
+docker build -t basketball-trainer .
+```
+
+#### 2. Run training with default parameters
+
+```bash
+docker run --gpus all -v $(pwd)/runs:/app/runs -v $(pwd)/data.yaml:/app/data.yaml basketball-trainer
+```
+
+#### 3. Run training with custom parameters
+
+```bash
+docker run --gpus all \
+  -v $(pwd)/runs:/app/runs \
+  -v $(pwd)/data.yaml:/app/data.yaml \
+  basketball-trainer \
+  python yolo_cuda_trainer.py -d data.yaml -e 100 -i 640 -b 16
+```
+
+**Parameters:**
+
+- `-d, --data`: Path to dataset YAML file (default: `data.yaml`)
+- `-e, --epochs`: Number of training epochs (default: 50)
+- `-i, --size`: Image size (640, 800, 1280, etc.) (default: 640)
+- `-b, --batch`: Batch size (-1 for auto-detection) (default: -1)
+- `-w, --workers`: Number of dataloader workers (default: 8)
+
+#### 4. Access training results
+
+After training, the model weights will be saved in `runs/detect/train/weights/best.pt`. Copy this file to `models/` directory:
+
+```bash
+cp runs/detect/train/weights/best.pt models/shot.pt
+```
+
+### Training with Python Script
+
+#### 1. Install dependencies
+
+```bash
+pip install -r requirements.txt
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+```
+
+#### 2. Prepare dataset
+
+Ensure your dataset is organized in YOLO format:
+
+```
+dataset/
+├── train/
+│   └── images/
+├── valid/
+│   └── images/
+└── test/
+    └── images/
+```
+
+Update `data.yaml` with the correct paths to your dataset.
+
+#### 3. Run training script
+
+```bash
+python yolo_cuda_trainer.py -d data.yaml -e 50 -i 640 -b 16
+```
+
+The script will automatically:
+
+- Detect available GPU (CUDA/MPS/CPU)
+- Optimize CUDA settings for performance
+- Auto-detect optimal batch size based on GPU memory
+- Save best model weights to `runs/detect/train/weights/best.pt`
+
+### Training with Jupyter Notebook
+
+#### 1. Open the notebook
+
+```bash
+jupyter notebook notebooks/DatasetTraning.ipynb
+```
+
+#### 2. Follow the notebook steps
+
+The notebook includes:
+
+- Installation of required libraries (ultralytics, roboflow)
+- Dataset download from Roboflow (or use your own dataset)
+- Model training with YOLOv8
+- Model export instructions
+
+#### 3. Download trained model
+
+After training completes, download the model from:
+
+- `runs/detect/train/weights/best.pt` (best model)
+- `runs/detect/train/weights/last.pt` (last checkpoint)
+
+### Dataset Information
+
+#### Basic Detection Model (shot.pt)
+
+**Dataset:** [Basketball Detection Dataset](https://universe.roboflow.com/cricket-qnb5l/basketball-xil7x/dataset/1)
+
+**Classes:**
+
+- Class 0: `ball` - Basketball
+- Class 1: `human` - Player
+- Class 2: `rim` - Basketball rim
+
+**Configuration:** See `data.yaml` for dataset paths and class definitions.
+
+#### Shot Phase Detection Model (copyme.pt)
+
+**Dataset:** [Shot Analysis Dataset](https://universe.roboflow.com/copyme-3cenq/shotanalysis/dataset/21)
+
+**Classes:**
+
+- Class 0: `shot_followthrough` - Follow-through motion after release
+- Class 1: `shot_position` - Player positioning and preparation phase
+- Class 2: `shot_release` - Ball release phase (note: model uses 'shot_realese' spelling)
+
+**Configuration:** The model configuration is embedded in the `.pt` file.
+
+## Running the Project
+
+### Option 1: Streamlit Web Application (Recommended)
+
+The Streamlit application provides an interactive web interface for video analysis.
+
+#### Launch with Python script:
+
+```bash
+# From project root
+python playground/run_streamlit.py
+```
+
+#### Launch directly with Streamlit:
+
+```bash
+cd playground
+streamlit run streamlit_app.py
+```
+
+The application will open in your default web browser at `http://localhost:8501`.
+
+**Features:**
+
+- Upload video files or use webcam
+- Real-time trajectory analysis
+- Shot probability calculation
+- Shot phase detection visualization
+- Configurable detection parameters
+- Real-time metrics display
+
+### Option 2: OpenCV Desktop Application
+
+For a desktop application with OpenCV:
+
+```bash
+python scripts/main.py
+```
+
+**Controls:**
+
+- **SPACE**: Pause/Resume
+- **q**: Quit
+- **+**: Increase playback speed
+- **-**: Decrease playback speed
+- **r**: Reset basket position
+
+### Option 3: Install as Package
+
+Install the package in development mode:
+
+```bash
+pip install -e .
+```
+
+Then use the command-line interface:
+
+```bash
+basketball-analyzer
+```
+
 ## Performance Optimization
 
 ### GPU Support
@@ -208,3 +407,13 @@ For CUDA support, install PyTorch with CUDA:
 ```bash
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 ```
+
+### CPU-only Installation
+
+If you don't have a GPU, the application will run on CPU (slower):
+
+```bash
+pip install -r requirements.txt
+```
+
+The models will automatically use CPU if no GPU is available.
