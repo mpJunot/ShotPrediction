@@ -457,14 +457,14 @@ def display_realtime_metrics():
     # Detection status
     st.markdown("### Detection Status")
     if stats['basket_detected']:
-        st.success("✓ Basket detected")
+        st.success("Basket detected")
     else:
-        st.warning("✗ Basket not detected")
+        st.warning("Basket not detected")
 
     if stats['ball_tracked']:
-        st.success("✓ Ball tracked")
+        st.success("Ball tracked")
     else:
-        st.warning("✗ Ball not tracked")
+        st.warning("Ball not tracked")
 
     # Phase detection status
     if 'current_phase' in stats and stats['current_phase'] is not None:
@@ -479,15 +479,15 @@ def display_realtime_metrics():
 
         if 'has_required_phases' in stats:
             if stats['has_required_phases']:
-                st.success("✓ Required phases detected (Release + Followthrough)")
+                st.success("Required phases detected (Release + Followthrough)")
             else:
-                st.warning("⚠ Waiting for required phases (Release + Followthrough)")
+                st.warning("Waiting for required phases (Release + Followthrough)")
 
         if 'is_in_active_phase' in stats:
             if stats['is_in_active_phase']:
-                st.success("✓ Active shot phase (predicting trajectory)")
+                st.success("Active shot phase (predicting trajectory)")
             else:
-                st.info("ℹ Shot phase completed (prediction stopped)")
+                st.info("Shot phase completed (prediction stopped)")
 
 def display_statistics():
     """Display analysis statistics and charts"""
