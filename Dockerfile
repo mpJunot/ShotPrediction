@@ -3,23 +3,29 @@
 
 FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
 
+# Avoid interactive prompts during apt installs
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+
 # Set working directory
 WORKDIR /app
 
 # Install system dependencies
 # Includes libraries needed for opencv-python and other dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -yq \
+  -o Dpkg::Options::="--force-confdef" \
+  -o Dpkg::Options::="--force-confold" \
   python3.10 \
   python3-pip \
   python3.10-dev \
   git \
   wget \
   libglib2.0-0 \
+  libgl1 \
   libsm6 \
   libxext6 \
   libxrender-dev \
   libgomp1 \
-  libglib2.0-0 \
   && rm -rf /var/lib/apt/lists/*
 
 # Set Python 3.10 as default

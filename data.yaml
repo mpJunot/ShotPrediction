@@ -1,7 +1,12 @@
+path: /app/datasets/basketball
+train: /app/datasets/basketball/train/images
+val: /app/datasets/basketball/valid/images
+test: /app/datasets/basketball/test/images
+
 names:
-- ball
-- human
-- rim
+  - ball
+  - human
+  - rim
 nc: 3
 roboflow:
   license: CC BY 4.0
@@ -9,6 +14,3 @@ roboflow:
   url: https://universe.roboflow.com/cricket-qnb5l/basketball-xil7x/dataset/1
   version: 1
   workspace: cricket-qnb5l
-test: ../test/images
-train: ../train/images
-val: ../valid/images
